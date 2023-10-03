@@ -1,0 +1,133 @@
+.calcBox{
+	display: flex;
+	/*justify-content: center;*/
+	flex-direction: column;
+}
+
+.hide{
+	display: none;
+}
+
+body{
+	background-color: #181a1b;
+	text-align: center;
+	color:white; /* temp */
+}
+
+#app{
+	display: flex;
+}
+
+#header{
+	display: flex;
+	flex-direction: column;
+}
+
+#graph2d, #graph3d, #calculators{
+	flex-grow: 1;
+}
+
+canvas, button{
+	margin: 3px;
+	float: left;
+	border-radius: 4px;
+}
+
+#buts{
+	display: flex;
+	flex-flow: column;
+	float: left;
+}
+
+button{
+	height: 40px;
+	width: 80px;
+	background-color: #43494c;
+	color: #ddc;
+	cursor: pointer;
+	box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.16) inset, 0px 2px 10px 0px rgba(0, 0, 0, 0.12) inset;
+	transition: box-shadow 0.25s;
+	border: 0px;
+	border-radius: 2px;
+}
+
+button:hover {
+	box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.16) inset, 0px 2px 10px 0px rgba(0, 0, 0, 0.12) inset, 0px 0px 8px 2px rgba(0, 0, 0, 0.25) inset;
+}
+
+.toggleCalcs{
+	height: 60px;
+}
+
+input{
+	height: 40px;
+	background-color: #292929;
+	border-radius: 3px;
+	color: white;
+	border: none;
+	margin: 3px;
+}
+
+
+/* calculator */
+#uiRealCalc{
+	display: grid;
+	grid-template-columns: repeat(6, 105px);
+	grid-template-rows: repeat(4, 1fr);
+	justify-content: center;
+	justify-items: center;
+	margin: auto;
+}
+
+#uiCalculators{
+	display: grid;
+	flex-direction: column;
+	grid-template-rows: repeat(3,1fr);
+	grid-template-columns: repeat(2,1fr);
+	float: left;
+}
+
+#realCalculatorButtons{
+	display: grid;
+    grid-template-columns: repeat(3, 1fr 1fr);
+    justify-items: center;
+}
+
+#RealNumOutput {
+    text-align: right;
+    font-size: 30px;
+    border-radius: 4px;
+    border: 2px solid #555555;
+    height: 50px;
+    color: white;
+    background-color: #2b2b2b;
+    margin: 5px;
+}
+
+#infoPanel{
+	font-size: 45px;
+}
+
+.realNum, .realOp {
+    background-color: #2b2b2b;
+    color: #c8d9fb;
+    font-size: 20px;
+    border-radius: 8px;
+    border: 2px solid #5e67795e;
+    transition-duration: 0.2s;
+    margin:2px;
+    width: 100px;
+    height: 100px;
+}
+
+.realOp{
+    background-color: #111;
+}
+.realOp[data-op=dot]{
+    background-color: #2b2b2b;
+}
+
+.realNum:hover, .realOp:hover {
+    background-color: #383944eb;
+    color: white;
+}

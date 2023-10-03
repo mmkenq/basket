@@ -1,0 +1,1 @@
+Template.prototype.graph2DTemplate = () => 'BASKETBALL';
