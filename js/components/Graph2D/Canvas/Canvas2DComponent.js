@@ -37,29 +37,25 @@ class Canvas2DComponent extends Component {
             return;
         };
 
-        this.activeFuncs = 0;
-        for(let i = 0; i < this.standartFuncs.length; i++){
-            if(this.standartFuncs[i].isActive){
-            	this.activeFuncs++;
-            	this.printFunc(this.standartFuncs, i, context);
-        		this.printString(this.win.left, -this.win.bottom-this.win.height+this.sy(this.activeFuncs*15), this.standartFuncs[i].name, this.standartFuncs[i].color, '15px sans-serif', context);
-            };
-        };
-        for(let i = 0; i < this.userFuncs.length; i++){
-            if(this.userFuncs[i].isActive){
-            	this.activeFuncs++;
-            	this.printFunc(this.userFuncs, i, context);
-            	this.printString(this.win.left, -this.win.bottom-this.win.height+this.sy(this.activeFuncs*15), this.userFuncs[i].name, this.userFuncs[i].color, '15px sans-serif', context);
-            };
-
-            // TODO ZEROES
-            if(this.userFuncs[i].zeroes.have){
-            	let x = this.callbacks.getZero(this.userFuncs[i].f, this.userFuncs[i].zeroes.a, this.userFuncs[i].zeroes.b);
-            	if(x === null) continue; 
-            	this.line(x, -this.win.bottom, x, -this.win.bottom-this.win.height, this.userFuncs[i].color, this.userFuncs[i].width, context);
-            };
-        };
+		this.drawBasketRing(context);
     };
+
+	drawBasketRing(context){
+
+		let basketRingImage = new Image();
+		basketRingImage.src = 'assets/basket_ring.png';
+		const cw = context.canvas.clientWidth;
+		const ch = context.canvas.clientHeight;
+		let iw, ih;
+
+		basketRingImage.onload = ()=>{
+			const iw = basketRingImage.naturalWidth;
+			const ih = basketRingImage.naturalHeight;
+			console.log(iw, ih, "TODO: GET THE CENTER of BASKET, calculate offset to draw width drawImage()")	
+			context.drawImage(basketRingImage, this.xs(0), this.ys(0), cw/4,cw/4);
+
+		}
+	}
 
 	line(x1,y1,x2,y2,color,width,context){
 		context.beginPath();
