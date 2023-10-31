@@ -47,13 +47,15 @@ class Canvas2DComponent extends Component {
 		const cw = context.canvas.clientWidth;
 		const ch = context.canvas.clientHeight;
 		let iw, ih;
-
+		
 		basketRingImage.onload = ()=>{
-			const iw = basketRingImage.naturalWidth;
-			const ih = basketRingImage.naturalHeight;
-			console.log(iw, ih, "TODO: GET THE CENTER of BASKET, calculate offset to draw width drawImage()")	
-			context.drawImage(basketRingImage, this.xs(0), this.ys(0), cw/4,cw/4);
-
+			iw = basketRingImage.naturalWidth;
+			ih = basketRingImage.naturalHeight;
+			let pos = {x:0, y:0}
+			let scaleCanvas = 1/4;
+			const offsetX = this.xs(pos.x)-(cw*scaleCanvas/2)
+			const offsetY = this.ys(pos.y)-(ch*scaleCanvas/2);
+			context.drawImage(basketRingImage, offsetX, offsetY, cw*scaleCanvas, cw*scaleCanvas);
 		}
 	}
 

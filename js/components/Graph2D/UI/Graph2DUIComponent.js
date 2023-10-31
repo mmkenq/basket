@@ -25,8 +25,15 @@ class Graph2DUIComponent extends Component {
 		playBut.innerHTML = 'Play';
 		playBut.addEventListener('playBut', ()=>{
 			interval = setInterval(function(){
-				updateTime(timerSecs);
-				timerSecs--;
+				if(timerSecs!=0){
+					timerSecs--;
+					updateTime(timerSecs);
+				}
+				else if(timerSecs==0){
+					if(interval) { clearInterval(interval);}		
+					alert("TIMEOVER")
+					// TODO: send timeOver API
+				}
 			}, 1000);
 			playBut.remove();
 			document.getElementById('buts2d').prepend(pauseBut);
