@@ -1,3 +1,4 @@
+const WAIT_FOR_IMAGES_TIME_MS = 100;
 class Graph2DComponent extends Component {
     win = {
         // относительно начала координат
@@ -8,8 +9,31 @@ class Graph2DComponent extends Component {
         height: 20,
     };
 
-    userFuncs = [];
-    standartFuncs = [];
+	basketObjects = [
+		{
+			id: 0,
+			name: 'basket ring',
+			source: 'assets/basket_ring.png',
+			pos: {x: 0, y: 5},
+			scaleToCanvas: 1/4,
+			
+			// fills later 
+			loadComplete: null, // (onload image)	
+			img: null, 		  	// (onload image) 
+		},
+		{
+			id: 1,
+			name: 'basket ball',
+			source: 'assets/basketball_ball.png',
+			pos: {x: 0, y: 0},
+			scaleToCanvas: 1/6,
+
+			// fills later 
+			loadComplete: null, // (onload image)	
+			img: null, 		  	// (onload image) 
+
+		},
+	];
 
     constructor(options){
         super(options);
@@ -21,8 +45,8 @@ class Graph2DComponent extends Component {
             callbacks: {wheel: this.wheel, mouseD: this.mouseD, mouseU: this.mouseU, mouseM: this.mouseM, getZero: this.getZero},
 
             win: this.win,
-            width: 350,
-            height: 350,
+            width: 550,
+            height: 400,
         });
 
         this.ui = new Graph2DUIComponent({
@@ -33,11 +57,51 @@ class Graph2DComponent extends Component {
             api:{ },
         });
 
-        this.render();
-    };
+		this.init();
+    }
+
+	async init(){
+		let a = await this.initObjectsData();
+		this.render();
+	}
+
+	sleep = async (ms) => {
+		return new Promise(resolve => setTimeout(resolve, ms));
+	}
+
+	initObjectsData(){
+		return new Promise(async (resolve,reject)=>{
+			this.basketObjects.forEach((obj, i)=>{		
+				obj.img = new Image();
+				obj.img.src = obj.source;
+				obj.img.onload = () =>{
+					obj.loadComplete = true;
+					console.log('LOADED: ' + obj.name + '\n(src: ' + obj.img.src + ')');
+				}
+				obj.img.onerror = () => console.error('IMAGE LOAD ERROR: ' + JSON.stringify(obj));
+			});	
+			while(1){
+				await this.sleep(WAIT_FOR_IMAGES_TIME_MS);
+				let loadedCount = 0;
+				this.basketObjects.forEach((obj,i)=>{
+					if(obj.loadComplete) loadedCount++;
+				});
+				if(this.basketObjects.length == loadedCount){
+					resolve({allObjectsDataInitialized: 'TRUE'});
+					break;
+				}
+				else {
+					console.log('\
+...load objectsData check pass...\n\
+(maybe increase WAIT_FOR_IMAGES_TIME_MS ?)');
+					continue;
+				}
+			}		
+		});
+	}
 
     render(){
-        this.canvas.render(canvas2d1.getContext('2d'));
+        this.canvas.render(canvas2d1.getContext('2d'), this.basketObjects);
         // this.canvas.render(canvas2d2.getContext('2d'));
         // this.canvas.render(canvas2d3.getContext('2d'));
         // ...
@@ -46,7 +110,7 @@ class Graph2DComponent extends Component {
     wheel = (ev) => {
         if(ev.deltaY < 0){
             if(this.win.width <= 5) return;
-            this.win.width -= 2;
+			this.win.width -= 2;
             this.win.height -= 2;
             this.win.left++;
             this.win.bottom++;

@@ -8,8 +8,6 @@ class Canvas2DComponent extends Component {
 	constructor(options){
 		super(options);
 		this.win = options.win;
-		this.standartFuncs = options.standartFuncs;
-		this.userFuncs = options.userFuncs;
 		canvas2d1.width = options.width;
 		canvas2d1.height = options.height;
 
@@ -26,37 +24,28 @@ class Canvas2DComponent extends Component {
 	};
 
 	// Is API
-	render = (context, isClear) => {
+	render = (context, objects, isClear) => {
         this.clear(context);
         this.printCells(context);
         this.printOxy(context);
         if(isClear) {
-            for(let i = 0; i < this.standartFuncs.length; i++){
-                this.standartFuncs[i].isActive = false;
-            };
             return;
         };
 
-		this.drawBasketRing(context);
+		objects.forEach((obj, i)=>{
+			this.printObjectImage(obj, context);
+		})
     };
 
-	drawBasketRing(context){
-
-		let basketRingImage = new Image();
-		basketRingImage.src = 'assets/basket_ring.png';
+	// 
+	printObjectImage(obj, context){
 		const cw = context.canvas.clientWidth;
 		const ch = context.canvas.clientHeight;
-		let iw, ih;
-		
-		basketRingImage.onload = ()=>{
-			iw = basketRingImage.naturalWidth;
-			ih = basketRingImage.naturalHeight;
-			let pos = {x:0, y:0}
-			let scaleCanvas = 1/4;
-			const offsetX = this.xs(pos.x)-(cw*scaleCanvas/2)
-			const offsetY = this.ys(pos.y)-(ch*scaleCanvas/2);
-			context.drawImage(basketRingImage, offsetX, offsetY, cw*scaleCanvas, cw*scaleCanvas);
-		}
+		const iw = obj.img.naturalWidth;
+		const ih = obj.img.naturalHeight;
+		const offsetX = this.xs(obj.pos.x)-(cw*obj.scaleToCanvas/2)
+		const offsetY = this.ys(obj.pos.y)-(ch*obj.scaleToCanvas/2);
+		context.drawImage(obj.img, offsetX, offsetY, cw*obj.scaleToCanvas, cw*obj.scaleToCanvas);
 	}
 
 	line(x1,y1,x2,y2,color,width,context){
