@@ -1,4 +1,5 @@
 const WAIT_FOR_IMAGES_TIME_MS = 100;
+
 class Graph2DComponent extends Component {
     win = {
         // относительно начала координат
@@ -75,7 +76,7 @@ class Graph2DComponent extends Component {
             id:'ui2d',
             parent: this,
             template: template.graph2DTemplate.uiTemplate,
-            // callbacks: {},
+            callbacks: {pause: this.pause, play: this.play},
             //api:{ },
         });
 
@@ -109,12 +110,12 @@ class Graph2DComponent extends Component {
 					if(obj.loadComplete){
 						switch(obj.id){
 							case 1:
-								this.moveObjToRandom(obj);
+								this.moveObj(obj, true, obj.geo.pos.y);
 								this.setObjDimensions(obj);
 								break;
 							case 0:
 								// TODO: HARD LEVEL
-								//this.moveObjToRandom(obj);
+								//this.moveObj(obj);
 								this.setObjDimensions(obj);
 								break;
 							default:
@@ -201,11 +202,12 @@ class Graph2DComponent extends Component {
 		this.canvas.canMove = false;
 		let rx,ry,rw,rh; // ring
 		let bx,by,bw,bh; // ball
+		let bxc, byc; // ball center
+		
 		this.basketObjects.forEach( (obj, i) => {
 			obj.canMove = false;
 			const objcx = this.canvas.xs(obj.geo.pos.x);
 			const objcy = this.canvas.ys(obj.geo.pos.y);
-			this.canvas.context1.strokeStyle = "green";
 			switch(obj.id){
 				case 1:
 					// HELPER CODE: BALL BOUNDING BOX
@@ -213,9 +215,8 @@ class Graph2DComponent extends Component {
 					by = objcy - obj.geo.h/2;
 					bw = obj.geo.w;
 					bh = obj.geo.h;
-					this.canvas.context1.beginPath();
-					this.canvas.context1.rect(bx,by,bw,bh);
-					this.canvas.context1.stroke();
+					bxc = bx+bw/2;
+					byc = by+bh/2;
 					break;
 				case 0:
 					/* HELPER CODE: COLLISIONS RING AREA */
@@ -230,15 +231,6 @@ class Graph2DComponent extends Component {
 					let colOffsetY = (cw/ih) * obj.collisions[0].y * s;
 					let offsetY = objcy - (cw*s/2) + colOffsetY;
 
-					this.canvas.context1.beginPath();
-					this.canvas.context1.rect(
-						offsetX,
-						offsetY,
-						(cw/iw)*obj.collisions[0].w*s,
-						(cw/ih)*obj.collisions[0].h*s
-					);
-					this.canvas.context1.stroke();
-
 					rx = offsetX;
 					ry = offsetY;
 					rw = (cw/iw)*obj.collisions[0].w*s;
@@ -249,8 +241,37 @@ class Graph2DComponent extends Component {
 					break;
 			}
 		}); // this.basketObjects.forEach
-		let status = this.isPass(rx,ry,rw,rh,bx,by,bw,bh);
-		console.log(status);
+		
+		let hit = this.isHit(rx,ry,rw,rh, bxc,byc);
+		if(hit){
+			this.canvas.context1.strokeStyle = "green";
+			this.ui.addBalls(1);
+			const obj = this.getObjById(1);
+			obj.imgScaleToCanvas = 1/6;
+			this.moveObj(obj, true,6);
+			this.setObjDimensions(obj);
+			// TODO: RENDER BALL ANIMATION
+			this.render();	
+		}
+		else {
+			this.canvas.context1.strokeStyle = "red";
+
+			// TODO: MOVE INTO printObjectImageBoundings() inside Canvas2DComponent
+			// ball bounding box
+			//this.canvas.context1.beginPath();
+			//this.canvas.context1.rect(bx,by,bw,bh);
+			//this.canvas.context1.stroke();
+
+			// ball bounding circle
+			this.canvas.context1.beginPath();
+			this.canvas.context1.arc(bxc, byc, bw/2, 0, 2 * Math.PI);
+			this.canvas.context1.stroke();
+
+			// ring
+			this.canvas.context1.beginPath();
+			this.canvas.context1.rect(rx,ry,rw,rh);
+			this.canvas.context1.stroke();
+		}
 	}; // mouseU
     mouseM = (ev) => {
 
@@ -333,10 +354,17 @@ class Graph2DComponent extends Component {
         this.render();
     };
 
-	moveObjToRandom(obj){
-		// xPos range: [-8,8)
-		let xPos = Math.random() * 16 - 8;
+	moveObj(obj, x, y){
+		let xPos = x;
+		let yPos = y;
+
+		// xPos random range: [-8,8)
+		// yPos random range: [0,8)
+		if(x===true) xPos = Math.random() * 16 - 8;
+		if(y===true) yPos = Math.random() * 8;
+
 		obj.geo.pos.x = xPos;
+		obj.geo.pos.y = yPos;
 		return;
 	}
 
@@ -352,19 +380,25 @@ class Graph2DComponent extends Component {
 //		obj.geo.h= (ih*s)/2;
 	}
 
-	// ringX,ringY,ringWidth,ringHeight
+	// LOGIC: Ball center should be inside ting area
+	// PARAMS: ringX,ringY,ringWidth,ringHeight
 	// ballx,ballY,ballWidth,ballHeight
-	isPass(rx,ry,rw,rh, bx,by,bw,bh){
+	isHit(rx,ry,rw,rh, bxc,byc){
 		let pass = false;
-		console.log('RING:');
-		console.log(rx,ry);
-		console.log(rw,rh);
-		console.log('BALL:');
-		console.log(bx,by);
-		console.log(bw,bh);
+		if(
+			rx <= bxc && bxc <= (rx+rw) &&
+			ry <= byc && byc <= (ry+rh)
+		) pass = true;
 
 		return pass;
 	}
 
+	pause = ()=>{
+		this.block(this.canvas.context1.canvas.id);
+		// TODO: PAUSE MENU ON CANVAS
+	}
+	play = ()=>{
+		this.unblock(this.canvas.context1.canvas.id);
+	}
     _AddEventListeners(){};
 };

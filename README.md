@@ -1,3 +1,3 @@
 # trusov_framework
 
-fuck logic
+basketball game

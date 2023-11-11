@@ -25,6 +25,14 @@ class Component{
 		if(componentId) document.getElementById(componentId).classList.add('hide');
 		else document.getElementById(this.id).classList.add('hide');
 	};
+	block(componentId){
+		if(componentId) document.getElementById(componentId).classList.add('block');
+		else document.getElementById(this.id).classList.add('block');
+	};
+	unblock(componentId){
+		if(componentId) document.getElementById(componentId).classList.remove('block');
+		else document.getElementById(this.id).classList.remove('block');
+	};
 
 	_render(template, classNames){
 		const el = document.createElement('div');
