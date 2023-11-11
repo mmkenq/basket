@@ -24,6 +24,7 @@ class Graph2DUIComponent extends Component {
 		let interval;
 		playBut.innerHTML = 'Play';
 		playBut.addEventListener('playBut', ()=>{
+			console.log('TODO: send playBut API');
 			interval = setInterval(function(){
 				if(timerSecs!=0){
 					timerSecs--;
@@ -46,6 +47,7 @@ class Graph2DUIComponent extends Component {
 		let pauseBut = document.createElement('button');
 		pauseBut.innerHTML = 'Pause';
 		pauseBut.addEventListener('click', ()=>{
+			console.log('TODO: send pauseBut API');
 			if(interval) { clearInterval(interval);}
 			pauseBut.remove();
 			document.getElementById('buts2d').prepend(playBut);
@@ -56,12 +58,12 @@ class Graph2DUIComponent extends Component {
 		let restartBut = document.createElement('button');
 		restartBut.innerHTML = 'Restart Game';
 		restartBut.addEventListener('click',()=>{
+			console.log('TODO: send restartBut API');
 			if(interval) {
 				clearInterval(interval);
 				timerSecs = SECS;
 				playBut.dispatchEvent(playEvent);
 			}
-			console.log('restartBut');
 		})
 		document.getElementById('buts2d').appendChild(restartBut);
 

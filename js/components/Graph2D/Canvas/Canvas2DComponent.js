@@ -25,17 +25,17 @@ class Canvas2DComponent extends Component {
 
 	// Is API
 	render = (context, objects, isClear) => {
-        this.clear(context);
-        this.printCells(context);
-        this.printOxy(context);
-        if(isClear) {
-            return;
-        };
+		this.clear(context);
+		this.printCells(context);
+		this.printOxy(context);
+		if(isClear) {
+			return;
+		};
 
 		objects.forEach((obj, i)=>{
 			this.printObjectImage(obj, context);
 		})
-    };
+	};
 
 	// 
 	printObjectImage(obj, context){
@@ -43,9 +43,9 @@ class Canvas2DComponent extends Component {
 		const ch = context.canvas.clientHeight;
 		const iw = obj.img.naturalWidth;
 		const ih = obj.img.naturalHeight;
-		const offsetX = this.xs(obj.pos.x)-(cw*obj.scaleToCanvas/2)
-		const offsetY = this.ys(obj.pos.y)-(ch*obj.scaleToCanvas/2);
-		context.drawImage(obj.img, offsetX, offsetY, cw*obj.scaleToCanvas, cw*obj.scaleToCanvas);
+		const offsetX = this.xs(obj.geo.pos.x)-(cw*obj.imgScaleToCanvas/2);
+		const offsetY = this.ys(obj.geo.pos.y)-(cw*obj.imgScaleToCanvas/2);
+		context.drawImage(obj.img, offsetX, offsetY, cw*obj.imgScaleToCanvas, cw*obj.imgScaleToCanvas);
 	}
 
 	line(x1,y1,x2,y2,color,width,context){
@@ -127,10 +127,10 @@ class Canvas2DComponent extends Component {
 
 
     _AddEventListeners(){
-        canvas2d1.addEventListener('wheel', this.callbacks.wheel.bind(this));
-        canvas2d1.addEventListener('mousedown', ()=>this.callbacks.mouseD(this));
-        canvas2d1.addEventListener('mouseup', ()=>this.callbacks.mouseU(this));
-        canvas2d1.addEventListener('mousemove', (ev)=>this.callbacks.mouseM(ev, this));
+        canvas2d1.addEventListener('wheel', (ev)=>this.callbacks.wheel(ev));
+        canvas2d1.addEventListener('mousedown', (ev)=>this.callbacks.mouseD(ev));
+        canvas2d1.addEventListener('mouseup', (ev)=>this.callbacks.mouseU(ev));
+        canvas2d1.addEventListener('mousemove', (ev)=>this.callbacks.mouseM(ev));
         // canvas2d1.addEventListener('mousedown', this.callbacks.mouseD.bind(this));
         // canvas2d1.addEventListener('mouseup', this.callbacks.mouseU.bind(this));
         // canvas2d1.addEventListener('mousemove', this.callbacks.mouseM.bind(this));

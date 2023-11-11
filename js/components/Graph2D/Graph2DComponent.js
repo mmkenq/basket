@@ -3,7 +3,7 @@ class Graph2DComponent extends Component {
     win = {
         // относительно начала координат
         left: -10,
-        bottom: -10,
+        bottom: -19,
         // относительно всего canvas'a
         width: 20,
         height: 20,
@@ -14,24 +14,46 @@ class Graph2DComponent extends Component {
 			id: 0,
 			name: 'basket ring',
 			source: 'assets/basket_ring.png',
-			pos: {x: 0, y: 5},
-			scaleToCanvas: 1/4,
+			geo: {
+				// object's window x, y
+				pos: {x: 0, y: 12}, // (initObjectsData(), mousemove ev)
+				// object's canvas w, h
+				w: null,
+				h: null
+			},
+			collisions: [
+				// NOTE: IMAGE NATURAL PX AREA {X,Y,W,H}
+				// level -1: SPECIAL USE
+				// level 0: all objects are passing trhough
+				// level 1: TODO...
+				{x: 150, y: 100, w: 212, h: 122, level: -1},
+				//{x: 120, y: 260, w: 270, h: 10, level: 0},
+			],
+			imgScaleToCanvas: 1/4,
 			
 			// fills later 
 			loadComplete: null, // (onload image)	
 			img: null, 		  	// (onload image) 
+			canMove: false		// ()
 		},
 		{
+			// constant
 			id: 1,
-			name: 'basket ball',
-			source: 'assets/basketball_ball.png',
-			pos: {x: 0, y: 0},
-			scaleToCanvas: 1/6,
 
-			// fills later 
+			// more static
+			name: 'basketball ball',
+			source: 'assets/basketball_ball.png',
+			imgScaleToCanvas: 1/6,
+
+			// more dynamic 
 			loadComplete: null, // (onload image)	
 			img: null, 		  	// (onload image) 
-
+			geo: {
+				pos: {x: 0, y: 6}, // (initObjectsData(), mousemove ev)
+				w: null,
+				h: null
+			},
+			canMove: false,		// (mousedown ev)
 		},
 	];
 
@@ -45,8 +67,8 @@ class Graph2DComponent extends Component {
             callbacks: {wheel: this.wheel, mouseD: this.mouseD, mouseU: this.mouseU, mouseM: this.mouseM, getZero: this.getZero},
 
             win: this.win,
-            width: 550,
-            height: 400,
+            width: 800,
+            height: 512,
         });
 
         this.ui = new Graph2DUIComponent({
@@ -54,7 +76,7 @@ class Graph2DComponent extends Component {
             parent: this,
             template: template.graph2DTemplate.uiTemplate,
             // callbacks: {},
-            api:{ },
+            //api:{ },
         });
 
 		this.init();
@@ -84,7 +106,23 @@ class Graph2DComponent extends Component {
 				await this.sleep(WAIT_FOR_IMAGES_TIME_MS);
 				let loadedCount = 0;
 				this.basketObjects.forEach((obj,i)=>{
-					if(obj.loadComplete) loadedCount++;
+					if(obj.loadComplete){
+						switch(obj.id){
+							case 1:
+								this.moveObjToRandom(obj);
+								this.setObjDimensions(obj);
+								break;
+							case 0:
+								// TODO: HARD LEVEL
+								//this.moveObjToRandom(obj);
+								this.setObjDimensions(obj);
+								break;
+							default:
+								console.log(obj.name + ' UNUSED id: ' + obj.id);
+								break;
+						}
+						loadedCount++;
+					}
 				});
 				if(this.basketObjects.length == loadedCount){
 					resolve({allObjectsDataInitialized: 'TRUE'});
@@ -107,6 +145,19 @@ class Graph2DComponent extends Component {
         // ...
     };
 
+	getWinCoordsByMouseEv(ev){
+  		let bounds = this.canvas.context1.canvas.getBoundingClientRect();
+		let cx = ev.clientX - bounds.x;
+		let cy = ev.clientY - bounds.y;
+		let x = this.canvas.sx(cx) + this.canvas.win.left;
+		let y = - (this.canvas.sy(cy) + this.canvas.win.bottom);
+		return {x: x, y:y}
+	}
+	
+	getObjById(id){
+		return this.basketObjects.filter((obj)=> obj.id==1)[0]; 
+	}
+
     wheel = (ev) => {
         if(ev.deltaY < 0){
             if(this.win.width <= 5) return;
@@ -123,15 +174,109 @@ class Graph2DComponent extends Component {
         this.render();
     };
 
-    mouseD(canvas){ canvas.canMove = true; };  // Canvas2DComponent
-    mouseU(canvas){ canvas.canMove = false; }; // Canvas2DComponent
-    mouseM = (ev, canvas) => {
-        if (canvas.canMove) {
-            canvas.win.left -= canvas.sx(ev.movementX);
-            canvas.win.bottom -= canvas.sy(ev.movementY);
+    mouseD = (ev) => { 
+		let obj = this.getObjById(1);
+		let posMouse = this.getWinCoordsByMouseEv(ev);
+
+		// object canvas boundng box: x,y
+		let cboundx = this.canvas.xs(obj.geo.pos.x)-obj.geo.w/2;
+		let cboundy = this.canvas.ys(obj.geo.pos.y)-obj.geo.h/2;
+		let cboundw = obj.geo.w;
+		let cboundh = obj.geo.h;
+
+		let cmouseposx = this.canvas.xs(posMouse.x);
+		let cmouseposy = this.canvas.ys(posMouse.y);
+		if(cboundx <= cmouseposx &&
+			cmouseposx <= cboundx+cboundw
+			&&
+			cboundy <= cmouseposy &&
+			cmouseposy <= cboundy+cboundh
+		){ 
+			obj.canMove = true;
+		}
+		else this.canvas.canMove = true;
+
+	};  // mouseD
+    mouseU = (ev) => { 
+		this.canvas.canMove = false;
+		let rx,ry,rw,rh; // ring
+		let bx,by,bw,bh; // ball
+		this.basketObjects.forEach( (obj, i) => {
+			obj.canMove = false;
+			const objcx = this.canvas.xs(obj.geo.pos.x);
+			const objcy = this.canvas.ys(obj.geo.pos.y);
+			this.canvas.context1.strokeStyle = "green";
+			switch(obj.id){
+				case 1:
+					// HELPER CODE: BALL BOUNDING BOX
+					bx = objcx - obj.geo.w/2;
+					by = objcy - obj.geo.h/2;
+					bw = obj.geo.w;
+					bh = obj.geo.h;
+					this.canvas.context1.beginPath();
+					this.canvas.context1.rect(bx,by,bw,bh);
+					this.canvas.context1.stroke();
+					break;
+				case 0:
+					/* HELPER CODE: COLLISIONS RING AREA */
+					const cw = this.canvas.context1.canvas.clientWidth;  
+					const ch = this.canvas.context1.canvas.clientHeight; 
+					const iw = obj.img.naturalWidth;
+					const ih = obj.img.naturalHeight;
+					const s = obj.imgScaleToCanvas;
+
+					let colOffsetX = (cw/iw) * obj.collisions[0].x * s;
+					let offsetX = objcx - (cw*s/2) + colOffsetX;
+					let colOffsetY = (cw/ih) * obj.collisions[0].y * s;
+					let offsetY = objcy - (cw*s/2) + colOffsetY;
+
+					this.canvas.context1.beginPath();
+					this.canvas.context1.rect(
+						offsetX,
+						offsetY,
+						(cw/iw)*obj.collisions[0].w*s,
+						(cw/ih)*obj.collisions[0].h*s
+					);
+					this.canvas.context1.stroke();
+
+					rx = offsetX;
+					ry = offsetY;
+					rw = (cw/iw)*obj.collisions[0].w*s;
+					rh = (cw/ih)*obj.collisions[0].h*s;
+					break;
+				default:
+					console.log('mouseup on unknown object');
+					break;
+			}
+		}); // this.basketObjects.forEach
+		let status = this.isPass(rx,ry,rw,rh,bx,by,bw,bh);
+		console.log(status);
+	}; // mouseU
+    mouseM = (ev) => {
+
+		if (this.canvas.canMove) {
+            this.canvas.win.left -= this.canvas.sx(ev.movementX);
+            this.canvas.win.bottom -= this.canvas.sy(ev.movementY);
             this.render();
-        };
-    };
+        }
+		else {
+			this.basketObjects.forEach((obj, i)=>{
+				switch(obj.id){
+					case 1:
+						if(obj.canMove){
+							let pos = this.getWinCoordsByMouseEv(ev);
+							const DISTANCE_SCALE_FACTOR = 12;
+							obj.imgScaleToCanvas = 1/(pos.y * obj.geo.pos.y)*DISTANCE_SCALE_FACTOR;
+							obj.geo.pos = pos;
+							this.setObjDimensions(obj);
+							this.render();
+						}
+						break;
+					default: break;
+				}
+			});
+		}
+    }; // mouseM
 
     getZero(f, a, b){
         var eps = 0.0001;
@@ -187,6 +332,39 @@ class Graph2DComponent extends Component {
         this.userFuncs[num].zeroes.b = Number(b);
         this.render();
     };
+
+	moveObjToRandom(obj){
+		// xPos range: [-8,8)
+		let xPos = Math.random() * 16 - 8;
+		obj.geo.pos.x = xPos;
+		return;
+	}
+
+	setObjDimensions(obj){
+		const cw = this.canvas.context1.canvas.clientWidth;
+		const ch = this.canvas.context1.canvas.clientHeight;
+		const iw = obj.img.naturalWidth;
+		const ih = obj.img.naturalHeight;
+		const s = obj.imgScaleToCanvas;
+		obj.geo.w = (cw/iw) * iw * s;
+		obj.geo.h = (cw/ih) * ih * s;
+//		obj.geo.w= (iw*s)/2;
+//		obj.geo.h= (ih*s)/2;
+	}
+
+	// ringX,ringY,ringWidth,ringHeight
+	// ballx,ballY,ballWidth,ballHeight
+	isPass(rx,ry,rw,rh, bx,by,bw,bh){
+		let pass = false;
+		console.log('RING:');
+		console.log(rx,ry);
+		console.log(rw,rh);
+		console.log('BALL:');
+		console.log(bx,by);
+		console.log(bw,bh);
+
+		return pass;
+	}
 
     _AddEventListeners(){};
 };
