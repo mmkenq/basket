@@ -57,8 +57,14 @@ class Graph2DUIComponent extends Component {
 				}
 				else if(this.timerSecs==0){
 					if(interval) { clearInterval(interval);}		
+					interval = 0;
 					alert("TIMEOVER")
-					// TODO: send timeOver API
+					this.timerSecs = SECS;
+					this.ballsCount = 0;
+					this.updateTime(this.timerSecs);
+					this.updateBalls(this.ballsCount);
+					pauseBut.remove();
+					document.getElementById('buts2d').prepend(playBut);
 				}
 			}, 1000);
 			playBut.remove();
@@ -84,13 +90,13 @@ class Graph2DUIComponent extends Component {
 		let restartBut = document.createElement('button');
 		restartBut.innerHTML = 'Restart Game';
 		restartBut.addEventListener('click',()=>{
-			console.log('TODO: send restartBut API');
 			this.updateBalls(0);
 			if(interval) {
 				clearInterval(interval);
 				this.timerSecs = SECS;
 				playBut.dispatchEvent(playEvent);
 			}
+			this.updateTime(this.timerSecs);
 		})
 		document.getElementById('buts2d').appendChild(restartBut);
 

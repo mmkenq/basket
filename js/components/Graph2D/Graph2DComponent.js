@@ -17,18 +17,24 @@ class Graph2DComponent extends Component {
 			source: 'assets/basket_ring.png',
 			geo: {
 				// object's window x, y
-				pos: {x: 0, y: 12}, // (initObjectsData(), mousemove ev)
+				pos: {x: 0, y: 15}, // (initObjectsData(), mousemove ev)
 				// object's canvas w, h
 				w: null,
 				h: null
 			},
 			collisions: [
 				// NOTE: IMAGE NATURAL PX AREA {X,Y,W,H}
-				// level -1: SPECIAL USE
-				// level 0: all objects are passing trhough
-				// level 1: TODO...
-				{x: 150, y: 100, w: 212, h: 122, level: -1},
-				//{x: 120, y: 260, w: 270, h: 10, level: 0},
+				// level 0: all objects are passing through
+				// level 1: objects with colLevel >= 1 are passing through
+				// level 2: TODO...
+				// level 3: ...
+				// level 999: none objects are passing through
+				{x: 150, y: 100, w: 212, h: 122,
+					level: 0, color: 'green'},
+				{x: 105, y: 258, w: 20, h: 50,
+					level: 1, color: 'red'},
+				{x: 390, y: 258, w: 20, h: 50,
+					level: 1, color: 'red'},
 			],
 			imgScaleToCanvas: 1/4,
 			
@@ -44,6 +50,10 @@ class Graph2DComponent extends Component {
 			// more static
 			name: 'basketball ball',
 			source: 'assets/basketball_ball.png',
+			collisions:[
+				{x: 0, y: 0, w: 880, h: 880,
+					level: 1, color: 'red'},
+			],
 			imgScaleToCanvas: 1/6,
 
 			// more dynamic 
@@ -54,6 +64,7 @@ class Graph2DComponent extends Component {
 				w: null,
 				h: null
 			},
+			colLevel: 0,
 			canMove: false,		// (mousedown ev)
 		},
 	];
@@ -110,12 +121,12 @@ class Graph2DComponent extends Component {
 					if(obj.loadComplete){
 						switch(obj.id){
 							case 1:
-								this.moveObj(obj, true, obj.geo.pos.y);
+								this.setObjPos(obj, true, obj.geo.pos.y);
 								this.setObjDimensions(obj);
 								break;
 							case 0:
 								// TODO: HARD LEVEL
-								//this.moveObj(obj);
+								//this.setObjPos(obj);
 								this.setObjDimensions(obj);
 								break;
 							default:
@@ -139,8 +150,8 @@ class Graph2DComponent extends Component {
 		});
 	}
 
-    render(){
-        this.canvas.render(canvas2d1.getContext('2d'), this.basketObjects);
+    render(isClear = false){
+        this.canvas.render(canvas2d1.getContext('2d'), this.basketObjects, isClear);
         // this.canvas.render(canvas2d2.getContext('2d'));
         // this.canvas.render(canvas2d3.getContext('2d'));
         // ...
@@ -156,7 +167,7 @@ class Graph2DComponent extends Component {
 	}
 	
 	getObjById(id){
-		return this.basketObjects.filter((obj)=> obj.id==1)[0]; 
+		return this.basketObjects.filter((obj)=> obj.id==id)[0]; 
 	}
 
     wheel = (ev) => {
@@ -198,7 +209,7 @@ class Graph2DComponent extends Component {
 		else this.canvas.canMove = true;
 
 	};  // mouseD
-    mouseU = (ev) => { 
+    mouseU = async (ev) => { 
 		this.canvas.canMove = false;
 		let rx,ry,rw,rh; // ring
 		let bx,by,bw,bh; // ball
@@ -244,18 +255,21 @@ class Graph2DComponent extends Component {
 		
 		let hit = this.isHit(rx,ry,rw,rh, bxc,byc);
 		if(hit){
-			this.canvas.context1.strokeStyle = "green";
 			this.ui.addBalls(1);
 			const obj = this.getObjById(1);
+			await this.setObjAnim(obj);
+
+			this.canvas.context1.strokeStyle = "green";
 			obj.imgScaleToCanvas = 1/6;
-			this.moveObj(obj, true,6);
+			this.setObjPos(obj, true,6);
 			this.setObjDimensions(obj);
-			// TODO: RENDER BALL ANIMATION
 			this.render();	
 		}
 		else {
-			this.canvas.context1.strokeStyle = "red";
+			this.canvas.printObjectImageCollisions(this.getObjById(0), this.canvas.context1);
+			this.canvas.printObjectImageCollisions(this.getObjById(1), this.canvas.context1);
 
+			this.canvas.context1.strokeStyle = "pink";
 			// TODO: MOVE INTO printObjectImageBoundings() inside Canvas2DComponent
 			// ball bounding box
 			//this.canvas.context1.beginPath();
@@ -265,11 +279,6 @@ class Graph2DComponent extends Component {
 			// ball bounding circle
 			this.canvas.context1.beginPath();
 			this.canvas.context1.arc(bxc, byc, bw/2, 0, 2 * Math.PI);
-			this.canvas.context1.stroke();
-
-			// ring
-			this.canvas.context1.beginPath();
-			this.canvas.context1.rect(rx,ry,rw,rh);
 			this.canvas.context1.stroke();
 		}
 	}; // mouseU
@@ -286,7 +295,7 @@ class Graph2DComponent extends Component {
 					case 1:
 						if(obj.canMove){
 							let pos = this.getWinCoordsByMouseEv(ev);
-							const DISTANCE_SCALE_FACTOR = 12;
+							const DISTANCE_SCALE_FACTOR = 18;
 							obj.imgScaleToCanvas = 1/(pos.y * obj.geo.pos.y)*DISTANCE_SCALE_FACTOR;
 							obj.geo.pos = pos;
 							this.setObjDimensions(obj);
@@ -354,7 +363,7 @@ class Graph2DComponent extends Component {
         this.render();
     };
 
-	moveObj(obj, x, y){
+	setObjPos(obj, x, y){
 		let xPos = x;
 		let yPos = y;
 
@@ -379,6 +388,99 @@ class Graph2DComponent extends Component {
 //		obj.geo.w= (iw*s)/2;
 //		obj.geo.h= (ih*s)/2;
 	}
+
+	setObjAnim = async (obj) => {
+		this.animState.prevColL = false;
+		this.animState.prevColR = false;
+		const interval = setInterval(()=>{
+			const ring = this.getObjById(0);
+			// DEBUG START
+			this.render();
+			this.canvas.printObjectImageCollisions(ring, this.canvas.context1);
+			// DEBUG END
+
+			const offset = this.getOffsetByCollision(obj, ring);
+			obj.geo.pos.x += offset.x;
+			obj.geo.pos.y += offset.y + this.gravityFactor;
+//			this.render();
+		},38);
+		setTimeout(()=>{
+			clearInterval(interval);
+		}, 1500)
+		await this.sleep(1600);
+//		console.log(obj);
+	}
+	
+	// pseudo-gravity
+	gravityFactor = -0.3;
+	animState = {
+		prevColL: false,
+		prevColR: false,
+	}
+	getOffsetByCollision = (obj1, obj2)=>{
+		let offsetX = 0;
+		let offsetY = 0; 
+
+		// ball image collision pos
+		const bicpos = this.canvas.imgColToCanvas(
+			obj1,
+			obj1.collisions[0],
+			this.canvas.context1
+		);
+
+		// ring image collision pos
+		const ricLpos = this.canvas.imgColToCanvas(
+			obj2,
+			obj2.collisions[1], // left col
+			this.canvas.context1
+		);
+
+		// ring image collision pos
+		const ricRpos = this.canvas.imgColToCanvas(
+			obj2,
+			obj2.collisions[2], // right col
+			this.canvas.context1
+		);
+
+
+		if(!this.animState.prevColR){
+			if((bicpos.y+bicpos.h)>=ricLpos.y &&
+				bicpos.x <= (ricLpos.x)
+			){
+				offsetY += 1.3;
+				offsetX += Math.random()*0.6-0.3;
+			}
+			if(this.animState.prevColL ||
+				bicpos.x <= (ricLpos.x+ricLpos.w) &&
+				bicpos.y >= (ricLpos.y)
+			){
+				offsetX += 0.1;
+				this.animState.prevColL = true;
+				return {x: offsetX, y: offsetY}
+			}
+		}
+
+
+		if(!this.animState.prevColL){
+			if((bicpos.y+bicpos.h)>=ricRpos.y &&
+				(bicpos.x+bicpos.w) >= (ricRpos.x+ricRpos.w)
+			){
+				offsetY += 1.3;
+				offsetX += Math.random()*0.6-0.3;
+			}
+			if(this.animState.prevColR ||
+				(bicpos.x+bicpos.w) >= ricRpos.x &&
+				bicpos.y >= (ricRpos.y)
+			){
+				offsetX -= 0.1;
+				this.animState.prevColR = true;
+				return {x: offsetX, y: offsetY}
+			}
+		}
+
+		return {x: offsetX, y: offsetY}
+	}
+
 
 	// LOGIC: Ball center should be inside ting area
 	// PARAMS: ringX,ringY,ringWidth,ringHeight

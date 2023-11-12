@@ -48,6 +48,40 @@ class Canvas2DComponent extends Component {
 		context.drawImage(obj.img, offsetX, offsetY, cw*obj.imgScaleToCanvas, cw*obj.imgScaleToCanvas);
 	}
 
+	imgColToCanvas(obj, col, context){
+		const cw = context.canvas.clientWidth;
+		const ch = context.canvas.clientHeight;
+		const iw = obj.img.naturalWidth;
+		const ih = obj.img.naturalHeight;
+		const s = obj.imgScaleToCanvas;
+
+		const objcx = this.xs(obj.geo.pos.x);
+		const objcy = this.ys(obj.geo.pos.y);
+
+		let colw,colh;
+		let colOffsetX,colOffsetY;
+		let offsetX,offsetY;
+		colw = (cw/iw)*col.w*s;
+		colh = (cw/ih)*col.h*s;
+
+		colOffsetX = (cw/iw) * col.x * s;
+		offsetX = objcx - (cw*s/2) + colOffsetX;
+		colOffsetY = (cw/ih) * col.y * s;
+		offsetY = objcy - (cw*s/2) + colOffsetY;
+		return {x: offsetX, y: offsetY, w: colw, h: colh}
+	}
+
+	//
+	printObjectImageCollisions(obj, context){
+		obj.collisions.forEach((col,i)=>{
+			const icpos = this.imgColToCanvas(obj, col, context);
+			context.beginPath();
+			context.strokeStyle = col.color || 'yellow';
+			context.rect(icpos.x, icpos.y, icpos.w, icpos.h);
+			context.stroke();
+		});
+	}
+
 	line(x1,y1,x2,y2,color,width,context){
 		context.beginPath();
 		context.strokeStyle = color || '#ff5c6c';
