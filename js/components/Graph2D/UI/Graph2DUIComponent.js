@@ -1,5 +1,5 @@
 const TIMEZONE_OFFSET = 4;
-const SECS = 4;
+const SECS = 60;
 
 class Graph2DUIComponent extends Component {
 	ballsHeader = null;
