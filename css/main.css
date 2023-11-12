@@ -74,6 +74,10 @@ input{
 	margin: 3px;
 }
 
+ol{
+	font-size: 20px;
+}
+
 
 /* calculator */
 #uiRealCalc{
@@ -111,6 +115,7 @@ input{
 }
 
 #infoPanel{
+	display: grid;
 	font-size: 45px;
 }
 
