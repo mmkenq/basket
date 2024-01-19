@@ -97,6 +97,15 @@ class Graph2DComponent extends Component {
 	setDurationTime = (secs) => {
 		this.ui.setDurationTime(secs);
 	}
+	
+	setW = (w) => {
+		this.canvas.context1.canvas.width = w;
+		this.render();
+	}
+	setH = (h) => {
+		this.canvas.context1.canvas.height = h;
+		this.render();
+	}
 
 	async init(){
 		let a = await this.initObjectsData();

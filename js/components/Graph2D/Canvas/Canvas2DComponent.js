@@ -27,7 +27,7 @@ class Canvas2DComponent extends Component {
 	render = (context, objects, isClear) => {
 		this.clear(context);
 		this.printCells(context);
-		this.printOxy(context);
+		//this.printOxy(context);
 		if(isClear) {
 			return;
 		};

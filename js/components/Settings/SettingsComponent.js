@@ -23,7 +23,31 @@ class SettingsComponent extends Component{
 		timerWrapper.appendChild(title);
 		timerWrapper.appendChild(secs);
 		document.getElementById('settings').appendChild(timerWrapper);
-		
+
+
+		const winSize = document.createElement('div');
+		const w = document.createElement('input');
+		const h = document.createElement('input');
+		const winSizeTitle = document.createElement('div');
+		w.setAttribute('type', 'number');
+		w.placeholder = 'Default: 800';
+		h.setAttribute('type', 'number');
+		h.placeholder = 'Default: 512';
+		winSizeTitle.innerHTML = 'WINDOW SIZE: ';
+
+		w.addEventListener('change', (ev)=>{
+			this.callbacks.setW(ev.target.value || 800);
+		})
+		h.addEventListener('change', (ev)=>{
+			this.callbacks.setH(ev.target.value || 512);
+		})
+
+		winSize.classList.add('settingsElement');
+		winSize.appendChild(winSizeTitle);
+		winSize.appendChild(w);
+		winSize.appendChild(h);
+		document.getElementById('settings').appendChild(winSize);
+
 	}	
 
     _AddEventListeners(){

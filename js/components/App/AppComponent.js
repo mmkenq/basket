@@ -24,7 +24,8 @@ class AppComponent extends Component {
 			parent: this,
 			classNames: ['hide'],
 			template: template.settingsTemplate,
-			callbacks: { setDurationTime: this.graph2d.setDurationTime },
+			callbacks: { setDurationTime: this.graph2d.setDurationTime,
+			setW: this.graph2d.setW, setH: this.graph2d.setH },
 		});
 
 
