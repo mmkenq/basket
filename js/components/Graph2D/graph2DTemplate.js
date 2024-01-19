@@ -1,1 +1,1 @@
-Templat3e.prototype.graph2DTemplate = () => '';
+Template.prototype.graph2DTemplate = () => '';
