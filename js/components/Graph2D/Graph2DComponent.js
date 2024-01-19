@@ -106,6 +106,8 @@ class Graph2DComponent extends Component {
 		this.canvas.context1.canvas.height = h;
 		this.render();
 	}
+	
+	isInGame = ()=>{ return this.ui.isInGame(); }
 
 	async init(){
 		let a = await this.initObjectsData();
@@ -322,61 +324,6 @@ class Graph2DComponent extends Component {
 			});
 		}
     }; // mouseM
-
-    getZero(f, a, b){
-        var eps = 0.0001;
-        if (f(a) * f(b) > 0) return null;
-        if (Math.abs(f(a) - f(b)) <= eps) { return (a + b) / 2; };
-        var half = (a + b) / 2;
-        if (f(a) * f(half) <= 0) {
-            return this.getZero(f, a, half, eps);
-        };
-        if (f(b) * f(half) <= 0) {
-            return this.getZero(f, half, b, eps);
-        };
-    };
-
-    // TODO: getZero(for all zeroes), getDerivative, delFunction
-
-    addFunction = (num) => {
-        // default params
-        this.userFuncs[num] = {
-            f: () => 1,
-            name: null,
-            color: null,
-            width: 2,
-            isActive: false,
-            zeroes: {have: false, a: null, b: null},
-        };
-        this.render();
-    };
-
-    changeFunction = (f, num, color, width, name) => {
-        this.userFuncs[num].color = color || '#df8cff';
-        this.userFuncs[num].width = width || 2;
-        this.userFuncs[num].name = name;
-        if(f){
-            this.userFuncs[num].f = f;
-            this.userFuncs[num].isActive = true;
-        };
-        this.render();
-    };
-
-    // TODO: actually remove funcs from array
-    // and reuse empty slots
-    delFunction = (num) => {
-        this.userFuncs[num].isActive = false;
-		this.userFuncs[num].zeroes.have = false;
-        this.render();
-        // console.log(this.userFuncs)
-    };
-
-    printZeroes = (num,a,b) => {
-        this.userFuncs[num].zeroes.have = true;
-        this.userFuncs[num].zeroes.a = Number(a);
-        this.userFuncs[num].zeroes.b = Number(b);
-        this.render();
-    };
 
 	setObjPos(obj, x, y){
 		let xPos = x;

@@ -25,7 +25,8 @@ class AppComponent extends Component {
 			classNames: ['hide'],
 			template: template.settingsTemplate,
 			callbacks: { setDurationTime: this.graph2d.setDurationTime,
-			setW: this.graph2d.setW, setH: this.graph2d.setH },
+			setW: this.graph2d.setW, setH: this.graph2d.setH,
+			isInGame: this.graph2d.isInGame },
 		});
 
 

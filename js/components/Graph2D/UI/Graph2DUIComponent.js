@@ -11,6 +11,11 @@ class Graph2DUIComponent extends Component {
 //		{time: 0, balls: 0},
 	];
 
+	isInGame(){
+		if(this.timerDuration!=this.timerSecs) return true;
+		return false;
+	}
+
 	setDurationTime(secs){
 		this.timerDuration = secs;
 		this.timerSecs = this.timerDuration;
