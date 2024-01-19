@@ -94,6 +94,10 @@ class Graph2DComponent extends Component {
 		this.init();
     }
 
+	setDurationTime = (secs) => {
+		this.ui.setDurationTime(secs);
+	}
+
 	async init(){
 		let a = await this.initObjectsData();
 		this.render();
@@ -171,19 +175,21 @@ class Graph2DComponent extends Component {
 	}
 
     wheel = (ev) => {
-        if(ev.deltaY < 0){
-            if(this.win.width <= 5) return;
-			this.win.width -= 2;
-            this.win.height -= 2;
-            this.win.left++;
-            this.win.bottom++;
-        } else {
-            this.win.width += 2;
-            this.win.height += 2;
-            this.win.left--;
-            this.win.bottom--;
-        };
-        this.render();
+		/*
+			if(ev.deltaY < 0){
+				if(this.win.width <= 5) return;
+				this.win.width -= 2;
+				this.win.height -= 2;
+				this.win.left++;
+				this.win.bottom++;
+			} else {
+				this.win.width += 2;
+				this.win.height += 2;
+				this.win.left--;
+				this.win.bottom--;
+			};
+			this.render();
+		*/
     };
 
     mouseD = (ev) => { 

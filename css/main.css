@@ -16,7 +16,7 @@
 
 body{
 	background-color: #181a1b;
-	text-align: center;
+	/*text-align: center;*/
 	color:white; /* temp */
 }
 
@@ -30,7 +30,7 @@ body{
 }
 
 #graph2d, #graph3d, #calculators{
-	flex-grow: 1;
+	/*flex-grow: 1;*/
 }
 
 canvas, button{
@@ -115,8 +115,13 @@ ol{
 }
 
 #infoPanel{
-	display: grid;
+	/*display: grid;*/
 	font-size: 45px;
+}
+
+.settingsElement {
+	display: flex;
+	font-size: 30px;
 }
 
 .realNum, .realOp {

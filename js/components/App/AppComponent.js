@@ -9,15 +9,24 @@ class AppComponent extends Component {
 			template: template.headerTemplate,
 			callbacks: {toggleComponent: this.toggleComponent},
 
-			toggableComponentsIds: ['graph2d'],
+			toggableComponentsIds: ['graph2d', 'settings'],
 		});
-		
+
 		this.graph2d = new Graph2DComponent({
 			id:'graph2d',
 			parent: this,
 			//classNames: ['hide'],
 			template: template.graph2DTemplate,
 		});
+
+		this.settings = new SettingsComponent({
+			id:'settings',
+			parent: this,
+			classNames: ['hide'],
+			template: template.settingsTemplate,
+			callbacks: { setDurationTime: this.graph2d.setDurationTime },
+		});
+
 
 		/*
 		this.graph3d = new Graph3DComponent({
@@ -40,7 +49,7 @@ class AppComponent extends Component {
 
 	// EventListener called with bind()
 	toggleComponent(componentId, event){
-		// console.log(event)
+	//	 console.log(event)
 		for (let i = 0; i < this.toggableComponentsIds.length; i++) {
 			this.hide(this.toggableComponentsIds[i]);	
 		};

@@ -1,16 +1,21 @@
 const TIMEZONE_OFFSET = 4;
-const SECS = 60;
+const DEFAULT_TIMER_DURATION = 60;
 
 class Graph2DUIComponent extends Component {
 	ballsHeader = null;
 	ballsCount = 0;
 	timeHeader = null;
-	timerSecs = SECS;
 	playersHeader = null;
 	playersList = null;
 	players = [
 //		{time: 0, balls: 0},
 	];
+
+	setDurationTime(secs){
+		this.timerDuration = secs;
+		this.timerSecs = this.timerDuration;
+		this.updateTime();
+	}
 
 	updateBalls(count){		
 		this.ballsCount = count;
@@ -21,9 +26,9 @@ class Graph2DUIComponent extends Component {
 		this.updateBalls(this.ballsCount);
 	}
 
-	updateTime(seconds){		
+	updateTime(){		
 		const date = new Date(null);
-		date.setSeconds(seconds); // specify value for SECONDS here
+		date.setSeconds(this.timerSecs); // specify value for SECONDS here
 		const result = date.toISOString().slice(11, 19);
 		this.timeHeader.innerHTML = 'TIME: ' + result;
 	}
@@ -60,7 +65,7 @@ class Graph2DUIComponent extends Component {
 		// TIME HEADER
 		this.timeHeader = document.createElement('div');
 		document.getElementById('infoPanel').appendChild(this.timeHeader);
-		this.updateTime(SECS);
+		this.updateTime(this.timerDuration);
 
 		// PLAYERS
 		this.playersHeader = document.createElement('div');
@@ -72,6 +77,9 @@ class Graph2DUIComponent extends Component {
 
 	constructor(options){
 		super(options);
+
+		this.timerDuration = DEFAULT_TIMER_DURATION;
+		this.timerSecs = this.timerDuration;
 
 		// Headers
 		this.createHTML();
@@ -97,8 +105,8 @@ class Graph2DUIComponent extends Component {
 									("0" + today.getMinutes()).slice(-2) + ":" +
 									("0" + today.getSeconds()).slice(-2);
 						let dateTime = date+' '+time;
-						this.addPlayer(dateTime, SECS - this.timerSecs, this.ballsCount);
-					this.timerSecs = SECS;
+						this.addPlayer(dateTime, this.timerDuration - this.timerSecs, this.ballsCount);
+					this.timerSecs = this.timerDuration;
 					this.ballsCount = 0;
 					this.updateTime(this.timerSecs);
 					this.updateBalls(this.ballsCount);
@@ -130,7 +138,7 @@ class Graph2DUIComponent extends Component {
 			this.updateBalls(0);
 			if(interval) {
 				clearInterval(interval);
-				this.timerSecs = SECS;
+				this.timerSecs = this.timerDuration;
 				playBut.dispatchEvent(playEvent);
 			}
 			this.updateTime(this.timerSecs);

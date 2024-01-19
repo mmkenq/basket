@@ -1,1 +1,1 @@
-Template.prototype.graph2DTemplate = () => 'BASKETBALL';
+Template.prototype.graph2DTemplate = () => '';
