@@ -11,12 +11,11 @@ class SettingsComponent extends Component{
 		secs.setAttribute('type', 'number');
 		secs.placeholder = 'Default: 60';
 		secs.addEventListener('change', (ev)=>{
-			if(!this.callbacks.isInGame()){
-				this.callbacks.setDurationTime(ev.target.value || DEFAULT_TIMER_DURATION);
-			} else {
-				alert('Вы не закончили игру! Нажмите "Restart Game", после этого нажмите "Pause". Затем вернитесь сюда и попробуйте снова.')
-				secs.value = undefined;
+			if(this.callbacks.isInGame()){
+				alert('WARNING: Вы не закончили игру! Вы поменяли время, но оставили прогресс мячей. Возможно вы играете не честно.')
+				//secs.value = undefined;
 			};
+				this.callbacks.setDurationTime(ev.target.value || DEFAULT_TIMER_DURATION);
 		});
 
 		const title = document.createElement('div');
@@ -41,20 +40,10 @@ class SettingsComponent extends Component{
 		winSizeTitle.innerHTML = 'WINDOW SIZE: ';
 
 		w.addEventListener('change', (ev)=>{
-			if(!this.callbacks.isInGame()){
-				this.callbacks.setW(ev.target.value || 800);
-			} else{ 
-				w.value = undefined;
-				alert('Вы не закончили игру! Нажмите "Restart Game", после этого нажмите "Pause". Затем вернитесь сюда и попробуйте снова.')
-			}
+			this.callbacks.setW(ev.target.value || 800);
 		})
 		h.addEventListener('change', (ev)=>{
-			if(!this.callbacks.isInGame()){
-				this.callbacks.setH(ev.target.value || 512);
-			} else {
-				h.value = undefined;
-				alert('Вы не закончили игру! Нажмите "Restart Game", после этого нажмите "Pause". Затем вернитесь сюда и попробуйте снова.')
-			}
+			this.callbacks.setH(ev.target.value || 512);
 		})
 
 		winSize.classList.add('settingsElement');
