@@ -7,7 +7,7 @@ class AppComponent extends Component {
 		this.graph2d = new Graph2DComponent({
 			id:'graph2d',
 			parent: this,
-			//classNames: ['hide'],
+			classNames: [],
 			template: template.graph2DTemplate,
 		});
 

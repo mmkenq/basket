@@ -1,12 +1,13 @@
+.hide{
+	display: none !important;
+}
+
 .calcBox{
 	display: flex;
 	/*justify-content: center;*/
 	flex-direction: column;
 }
 
-.hide{
-	display: none;
-}
 
 .block{
 	cursor: not-allowed;
@@ -30,10 +31,21 @@ body{
 	order: 0;
 }
 
-#graph2d, #graph3d, #calculators{
+#graph2d {
 	order: 1;
-	/*flex-grow: 1;*/
+	display: flex;
+	flex-direction: column;
 }
+
+#ui2d {
+	display: flex;
+	flex-direction: column;
+}
+
+#buts2d {
+	order: 0;
+}
+
 
 #settings {
 	order: 1;
@@ -85,44 +97,10 @@ ol{
 }
 
 
-/* calculator */
-#uiRealCalc{
-	display: grid;
-	grid-template-columns: repeat(6, 105px);
-	grid-template-rows: repeat(4, 1fr);
-	justify-content: center;
-	justify-items: center;
-	margin: auto;
-}
-
-#uiCalculators{
-	display: grid;
-	flex-direction: column;
-	grid-template-rows: repeat(3,1fr);
-	grid-template-columns: repeat(2,1fr);
-	float: left;
-}
-
-#realCalculatorButtons{
-	display: grid;
-    grid-template-columns: repeat(3, 1fr 1fr);
-    justify-items: center;
-}
-
-#RealNumOutput {
-    text-align: right;
-    font-size: 30px;
-    border-radius: 4px;
-    border: 2px solid #555555;
-    height: 50px;
-    color: white;
-    background-color: #2b2b2b;
-    margin: 5px;
-}
-
 #infoPanel{
 	/*display: grid;*/
 	font-size: 45px;
+	order: 1;
 }
 
 .settingsElement {
