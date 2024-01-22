@@ -3,14 +3,6 @@ class AppComponent extends Component {
 	constructor(options){
 		super(options);
 
-		this.header = new HeaderComponent({
-			id:'header',
-			parent: this,
-			template: template.headerTemplate,
-			callbacks: {toggleComponent: this.toggleComponent},
-
-			toggableComponentsIds: ['graph2d', 'settings'],
-		});
 
 		this.graph2d = new Graph2DComponent({
 			id:'graph2d',
@@ -18,6 +10,7 @@ class AppComponent extends Component {
 			//classNames: ['hide'],
 			template: template.graph2DTemplate,
 		});
+
 
 		this.settings = new SettingsComponent({
 			id:'settings',
@@ -28,10 +21,22 @@ class AppComponent extends Component {
 				setDurationTime: this.graph2d.setDurationTime,
 				setW: this.graph2d.setW,
 				setH: this.graph2d.setH,
-				setBallById: this.graph2d.setBallById,
+				setObjById: this.graph2d.setObjById,
 				isInGame: this.graph2d.isInGame,
 				getObjs: ()=>this.graph2d.basketObjects
 			},
+		});
+
+		this.header = new HeaderComponent({
+			id:'header',
+			parent: this,
+			template: template.headerTemplate,
+			callbacks: {
+				toggleComponent: this.toggleComponent,
+				graph2dRender: this.graph2d.render
+			},
+
+			toggableComponentsIds: ['graph2d', 'settings'],
 		});
 
 

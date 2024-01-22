@@ -27,10 +27,16 @@ body{
 #header{
 	display: flex;
 	flex-direction: column;
+	order: 0;
 }
 
 #graph2d, #graph3d, #calculators{
+	order: 1;
 	/*flex-grow: 1;*/
+}
+
+#settings {
+	order: 1;
 }
 
 canvas, button{

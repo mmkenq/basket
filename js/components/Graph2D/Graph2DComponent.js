@@ -38,11 +38,12 @@ class Graph2DComponent extends Component {
 					level: 1, color: 'red'},
 			],
 			imgScaleToCanvas: 1/4,
+			selected: true,
 			
 			// fills later 
 			loadComplete: null, // (onload image)	
 			img: null, 		  	// (onload image) 
-			canMove: false		// ()
+			canMove: false,		// ()
 		},
 		{
 			// constant
@@ -59,6 +60,7 @@ class Graph2DComponent extends Component {
 			imgScaleToCanvas: 1/6,
 
 			// more dynamic 
+			selected: true,
 			loadComplete: null, // (onload image)	
 			img: null, 		  	// (onload image) 
 			geo: {
@@ -84,6 +86,7 @@ class Graph2DComponent extends Component {
 			imgScaleToCanvas: 1/6,
 
 			// more dynamic 
+			selected: false,
 			loadComplete: null, // (onload image)	
 			img: null, 		  	// (onload image) 
 			geo: {
@@ -95,6 +98,9 @@ class Graph2DComponent extends Component {
 			canMove: false,		// (mousedown ev)
 		},
 	];
+
+	basketObjectsActive = [
+	]
 
     constructor(options){
         super(options);
@@ -134,8 +140,21 @@ class Graph2DComponent extends Component {
 		this.render();
 	}
 
-	setBallById = (id) => {
-		console.log(id);
+	// NOTE: currently it only sets balls, not all objects
+	setObjById = (id) => {
+		this.basketObjects.forEach(function(el){
+			if(el.type == 'ball') el.selected = false;
+		});
+		const index = this.basketObjects.findIndex(function(obj){
+			return obj.id == id; 
+		});
+		this.basketObjects[index].selected = true;
+
+		this.basketObjectsActive.forEach((objActive, i)=>{
+			if(objActive.type == 'ball'){ 
+				this.basketObjectsActive.splice(i, 1, this.basketObjects[index]);
+			}
+		});
 	}
 	
 	isInGame = ()=>{ return this.ui.isInGame(); }
@@ -165,20 +184,21 @@ class Graph2DComponent extends Component {
 				let loadedCount = 0;
 				this.basketObjects.forEach((obj,i)=>{
 					if(obj.loadComplete){
-						switch(obj.id){
-							case 1:
-								this.setObjPos(obj, true, obj.geo.pos.y);
-								this.setObjDimensions(obj);
-								break;
-							case 0:
+						switch(obj.type){
+							case 'ring':
 								// TODO: HARD LEVEL
 								//this.setObjPos(obj);
 								this.setObjDimensions(obj);
 								break;
+							case 'ball':
+								this.setObjPos(obj, true, obj.geo.pos.y);
+								this.setObjDimensions(obj);
+								break;
 							default:
-								console.log(obj.name + ' UNUSED id: ' + obj.id);
+								console.log(obj.name + ' IS UNUSED, id: ' + obj.id);
 								break;
 						}
+						if(obj.selected) this.basketObjectsActive.push(obj);
 						loadedCount++;
 					}
 				});
@@ -196,8 +216,8 @@ class Graph2DComponent extends Component {
 		});
 	}
 
-    render(isClear = false){
-        this.canvas.render(canvas2d1.getContext('2d'), this.basketObjects, isClear);
+    render = (isClear = false) => {
+        this.canvas.render(canvas2d1.getContext('2d'), this.basketObjectsActive, isClear);
         // this.canvas.render(canvas2d2.getContext('2d'));
         // this.canvas.render(canvas2d3.getContext('2d'));
         // ...
@@ -212,8 +232,13 @@ class Graph2DComponent extends Component {
 		return {x: x, y:y}
 	}
 	
+	/*
 	getObjById(id){
 		return this.basketObjects.filter((obj)=> obj.id==id)[0]; 
+	}
+	*/
+	getActiveObjByType(type){
+		return this.basketObjectsActive.filter((obj)=>obj.type==type)[0];
 	}
 
     wheel = (ev) => {
@@ -235,17 +260,17 @@ class Graph2DComponent extends Component {
     };
 
     mouseD = (ev) => { 
-		let obj = this.getObjById(1);
-		let posMouse = this.getWinCoordsByMouseEv(ev);
+		const obj = this.getActiveObjByType('ball');	
+		const posMouse = this.getWinCoordsByMouseEv(ev);
 
 		// object canvas boundng box: x,y
-		let cboundx = this.canvas.xs(obj.geo.pos.x)-obj.geo.w/2;
-		let cboundy = this.canvas.ys(obj.geo.pos.y)-obj.geo.h/2;
-		let cboundw = obj.geo.w;
-		let cboundh = obj.geo.h;
+		const cboundx = this.canvas.xs(obj.geo.pos.x)-obj.geo.w/2;
+		const cboundy = this.canvas.ys(obj.geo.pos.y)-obj.geo.h/2;
+		const cboundw = obj.geo.w;
+		const cboundh = obj.geo.h;
 
-		let cmouseposx = this.canvas.xs(posMouse.x);
-		let cmouseposy = this.canvas.ys(posMouse.y);
+		const cmouseposx = this.canvas.xs(posMouse.x);
+		const cmouseposy = this.canvas.ys(posMouse.y);
 		if(cboundx <= cmouseposx &&
 			cmouseposx <= cboundx+cboundw
 			&&
@@ -263,12 +288,12 @@ class Graph2DComponent extends Component {
 		let bx,by,bw,bh; // ball
 		let bxc, byc; // ball center
 		
-		this.basketObjects.forEach( (obj, i) => {
+		this.basketObjectsActive.forEach( (obj, i) => {
 			obj.canMove = false;
 			const objcx = this.canvas.xs(obj.geo.pos.x);
 			const objcy = this.canvas.ys(obj.geo.pos.y);
-			switch(obj.id){
-				case 1:
+			switch(obj.type){
+				case 'ball':
 					// HELPER CODE: BALL BOUNDING BOX
 					bx = objcx - obj.geo.w/2;
 					by = objcy - obj.geo.h/2;
@@ -277,7 +302,7 @@ class Graph2DComponent extends Component {
 					bxc = bx+bw/2;
 					byc = by+bh/2;
 					break;
-				case 0:
+				case 'ring':
 					/* HELPER CODE: COLLISIONS RING AREA */
 					const cw = this.canvas.context1.canvas.clientWidth;  
 					const ch = this.canvas.context1.canvas.clientHeight; 
@@ -299,23 +324,24 @@ class Graph2DComponent extends Component {
 					console.log('mouseup on unknown object');
 					break;
 			}
-		}); // this.basketObjects.forEach
+		}); // this.basketObjectsActive.forEach
 		
 		let hit = this.isHit(rx,ry,rw,rh, bxc,byc);
+		const ball = this.getActiveObjByType('ball');
+		const ring = this.getActiveObjByType('ring');
 		if(hit){
 			this.ui.addBalls(1);
-			const obj = this.getObjById(1);
-			await this.setObjAnim(obj);
+			await this.setObjAnim(ball);
 
 			this.canvas.context1.strokeStyle = "green";
-			obj.imgScaleToCanvas = 1/6;
-			this.setObjPos(obj, true,6);
-			this.setObjDimensions(obj);
+			ball.imgScaleToCanvas = 1/6;
+			this.setObjPos(ball, true,6);
+			this.setObjDimensions(ball);
 			this.render();	
 		}
 		else {
-			this.canvas.printObjectImageCollisions(this.getObjById(0), this.canvas.context1);
-			this.canvas.printObjectImageCollisions(this.getObjById(1), this.canvas.context1);
+			this.canvas.printObjectImageCollisions(ring, this.canvas.context1);
+			this.canvas.printObjectImageCollisions(ball, this.canvas.context1);
 
 			this.canvas.context1.strokeStyle = "pink";
 			// TODO: MOVE INTO printObjectImageBoundings() inside Canvas2DComponent
@@ -339,9 +365,9 @@ class Graph2DComponent extends Component {
             this.render();
         }
 		else {
-			this.basketObjects.forEach((obj, i)=>{
-				switch(obj.id){
-					case 1:
+			this.basketObjectsActive.forEach((obj, i)=>{
+				switch(obj.type){
+						case 'ball':
 						if(obj.canMove){
 							let pos = this.getWinCoordsByMouseEv(ev);
 							const DISTANCE_SCALE_FACTOR = 18;
@@ -361,7 +387,7 @@ class Graph2DComponent extends Component {
 		let xPos = x;
 		let yPos = y;
 
-		// xPos random range: [-8,8)
+	// xPos random range: [-8,8)
 		// yPos random range: [0,8)
 		if(x===true) xPos = Math.random() * 16 - 8;
 		if(y===true) yPos = Math.random() * 8;
@@ -388,7 +414,7 @@ class Graph2DComponent extends Component {
 		this.animState.prevColR = false;
 		this.block(header.id);
 		const interval = setInterval(()=>{
-			const ring = this.getObjById(0);
+			const ring = this.getActiveObjByType('ring');
 			this.render();
 			this.canvas.printObjectImageCollisions(ring, this.canvas.context1);
 

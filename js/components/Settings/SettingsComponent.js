@@ -63,10 +63,11 @@ class SettingsComponent extends Component{
 			ballImg.width = '64';
 			ballImg.heigth = '64';
 			ballImg.classList.add('ballPreview');
+			if(ball.selected) ballImg.classList.add('ballPreviewSelected');
 			ballsBox.appendChild(ballImg);
 
 			ballImg.addEventListener('click', ()=>{
-				this.callbacks.setBallById(ball.id);
+				this.callbacks.setObjById(ball.id);
 			});
 			ballImg.addEventListener('click', function(){
 				Array.from(document.getElementsByClassName('ballPreviewSelected'))

@@ -2,6 +2,10 @@ class HeaderComponent extends Component{
 	constructor(options){
 		super(options);
 		this.toggableComponentsIds = options.toggableComponentsIds;
+		const g = document.querySelectorAll(`[data-component="graph2d"]`)[0];
+		g.addEventListener('click',()=>{
+			console.log(this.callbacks.graph2dRender())
+		});
 	};
 
     _AddEventListeners(){
