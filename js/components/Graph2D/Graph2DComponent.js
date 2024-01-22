@@ -13,6 +13,7 @@ class Graph2DComponent extends Component {
 	basketObjects = [
 		{
 			id: 0,
+			type: 'ring',
 			name: 'basket ring',
 			source: 'assets/basket_ring.png',
 			geo: {
@@ -46,10 +47,36 @@ class Graph2DComponent extends Component {
 		{
 			// constant
 			id: 1,
+			type: 'ball',
 
 			// more static
 			name: 'basketball ball',
 			source: 'assets/basketball_ball.png',
+			collisions:[
+				{x: 0, y: 0, w: 880, h: 880,
+					level: 1, color: 'red'},
+			],
+			imgScaleToCanvas: 1/6,
+
+			// more dynamic 
+			loadComplete: null, // (onload image)	
+			img: null, 		  	// (onload image) 
+			geo: {
+				pos: {x: 0, y: 6}, // (initObjectsData(), mousemove ev)
+				w: null,
+				h: null
+			},
+			colLevel: 0,
+			canMove: false,		// (mousedown ev)
+		},
+		{
+			// constant
+			id: 2,
+			type: 'ball',
+
+			// more static
+			name: 'basketball ball blue',
+			source: 'assets/basketball_ball_blue.png',
 			collisions:[
 				{x: 0, y: 0, w: 880, h: 880,
 					level: 1, color: 'red'},
@@ -105,6 +132,10 @@ class Graph2DComponent extends Component {
 	setH = (h) => {
 		this.canvas.context1.canvas.height = h;
 		this.render();
+	}
+
+	setBallById = (id) => {
+		console.log(id);
 	}
 	
 	isInGame = ()=>{ return this.ui.isInGame(); }

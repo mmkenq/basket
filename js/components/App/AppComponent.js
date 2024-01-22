@@ -24,9 +24,14 @@ class AppComponent extends Component {
 			parent: this,
 			classNames: ['hide'],
 			template: template.settingsTemplate,
-			callbacks: { setDurationTime: this.graph2d.setDurationTime,
-			setW: this.graph2d.setW, setH: this.graph2d.setH,
-			isInGame: this.graph2d.isInGame },
+			callbacks: { 
+				setDurationTime: this.graph2d.setDurationTime,
+				setW: this.graph2d.setW,
+				setH: this.graph2d.setH,
+				setBallById: this.graph2d.setBallById,
+				isInGame: this.graph2d.isInGame,
+				getObjs: ()=>this.graph2d.basketObjects
+			},
 		});
 
 
