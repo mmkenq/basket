@@ -76,7 +76,7 @@ class Graph2DComponent extends Component {
             id:'canvas2DBox',
             parent: this,
             template: template.graph2DTemplate.canvasTemplate,
-            callbacks: {wheel: this.wheel, mouseD: this.mouseD, mouseU: this.mouseU, mouseM: this.mouseM, getZero: this.getZero},
+            callbacks: {wheel: this.wheel, mouseD: this.mouseD, mouseU: this.mouseU, mouseM: this.mouseM },
 
             win: this.win,
             width: 800,
@@ -299,6 +299,7 @@ class Graph2DComponent extends Component {
 			this.canvas.context1.stroke();
 		}
 	}; // mouseU
+
     mouseM = (ev) => {
 
 		if (this.canvas.canMove) {
@@ -354,12 +355,11 @@ class Graph2DComponent extends Component {
 	setObjAnim = async (obj) => {
 		this.animState.prevColL = false;
 		this.animState.prevColR = false;
+		this.block(header.id);
 		const interval = setInterval(()=>{
 			const ring = this.getObjById(0);
-			// DEBUG START
 			this.render();
 			this.canvas.printObjectImageCollisions(ring, this.canvas.context1);
-			// DEBUG END
 
 			const offset = this.getOffsetByCollision(obj, ring);
 			obj.geo.pos.x += offset.x;
@@ -370,7 +370,13 @@ class Graph2DComponent extends Component {
 			clearInterval(interval);
 		}, 1500)
 		await this.sleep(1600);
-//		console.log(obj);
+
+		// NOTE: blocking/unblocking header.id is 
+		// a workaround for objects not rendering after
+		// playing animation & switching header
+		// at the same time bug
+		// TODO: fix the bug instead of workaround 
+		this.unblock(header.id);
 	}
 	
 	// pseudo-gravity
